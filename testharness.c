@@ -3,21 +3,29 @@
 #include <stdlib.h>
 
 int main(int argc, char **argv) {
+    /* 
+        Returns 0 upon success
+        Returns 1 upon failure during READ section
+        Returns 2 upon failure during WRITE section
+    */
+   
     if (argc < 3) {
-        return 0;
+        return 1;
     }
 
     FILE *fp = fopen(argv[1], "rb");
     char* outfile = argv[2];
 
     if (!fp) {
-        return 0;
+        return 1;
     }
 
     png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 
     if (!png) {
-        return 0;
+        fclose(fp);
+
+        return 1;
     }
 
     /* Provide I/O */
@@ -28,7 +36,9 @@ int main(int argc, char **argv) {
 
     if (!info) {
         png_destroy_read_struct(&png, NULL, NULL);
-        return 0;
+        fclose(fp);
+
+        return 1;
     }
 
     png_read_info(png, info);
@@ -43,6 +53,7 @@ int main(int argc, char **argv) {
     png_set_scale_16(png);
     png_set_packing(png);
 
+    // Reads png after running set functions
     png_read_update_info(png, info);
     /// Some interesting APIs to test that fetch the PNG attributes:
     /// png_get_channels, png_get_color_type, png_get_rowbytes, png_get_image_width, png_get_image_height, 
@@ -54,45 +65,61 @@ int main(int argc, char **argv) {
 
     png_bytep *rows = malloc(sizeof(png_bytep) * height);
 
+    // Checks for malloc error
     if (rows == NULL) {
         perror("Malloc failed for rows");
+        png_destroy_read_struct(&png, &info, NULL);
+        fclose(fp);
+
         return 1;
     }
 
+    // Allocates memory for rows and frees upon a failure
     for (int i = 0; i < height; i++) {
         rows[i] = malloc(rowBytes);
 
         if (rows[i] == NULL) {
             perror("Malloc failed for rows");
+
             for (int j = 0; j < i; j++) {
                 free(rows[j]);
             }
 
             free(rows);
+            png_destroy_read_struct(&png, &info, NULL);
+            fclose(fp);
+
             return 1;
         }
     }
 
     if (setjmp(png_jmpbuf(png))) {
         /* Swallow all libpng longjmp errors. */
-        png_destroy_read_struct(&png, &info, NULL);
+
         for (int i = 0; i < height; i++) {
             free(rows[i]);
         }
 
         free(rows);
-        return 0;
+        png_destroy_read_struct(&png, &info, NULL);
+        fclose(fp);
+
+        return 1;
     }
 
     png_read_image(png, rows);
     png_read_end(png, info);
+
+    // Destroys read struct and closes fp after finishing read operations
+    png_destroy_read_struct(&png, &info, NULL);
+    fclose(fp);
 
     /// Optional write API
     FILE *out = fopen(outfile, "wb");
 
     if (!out) {
         perror("open output");
-        return 1;
+        return 2;
     }
 
     png_structp wpng = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
@@ -103,19 +130,22 @@ int main(int argc, char **argv) {
         }
 
         free(rows);
-        return 1;
+        png_destroy_write_struct(&wpng, &winfo);
+        fclose(out);
+
+        return 2;
     }
 
     if (setjmp(png_jmpbuf(wpng))) {
-        fclose(out);
-        png_destroy_write_struct(&wpng, &winfo);
-
         for (int i = 0; i < height; i++) {
             free(rows[i]);
         }
 
         free(rows);
-        return 1;
+        png_destroy_write_struct(&wpng, &winfo);
+        fclose(out);
+
+        return 2;
     }
 
     png_init_io(wpng, out);
@@ -138,11 +168,9 @@ int main(int argc, char **argv) {
 
     free(rows);
 
-    png_destroy_read_struct(&png, &info, NULL);
+    // Destroys write struct and closes out
     png_destroy_write_struct(&wpng, &winfo);
-
-    // Closes files
-    fclose(fp);
     fclose(out);
+
     return 0;
 }
