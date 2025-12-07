@@ -8,7 +8,7 @@ int main(int argc, char **argv) {
         Returns 1 upon failure during READ section
         Returns 2 upon failure during WRITE section
     */
-   
+
     if (argc < 3) {
         return 1;
     }
@@ -29,7 +29,6 @@ int main(int argc, char **argv) {
     }
 
     /* Provide I/O */
-    //FILE *fp = fopen(filename, "rb");
     png_init_io(png, fp);
 
     png_infop info = png_create_info_struct(png);
@@ -124,6 +123,7 @@ int main(int argc, char **argv) {
 
     png_structp wpng = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
     png_infop   winfo = png_create_info_struct(wpng);
+    
     if (!wpng || !winfo) {
         for (int i = 0; i < height; i++) {
             free(rows[i]);
