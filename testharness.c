@@ -51,7 +51,6 @@ int main(int argc, char **argv) {
     png_size_t rowBytes = png_get_rowbytes(png, info);
     int width = png_get_image_width(png, info);
     int height = png_get_image_height(png, info);
-    int depth = png_get_bit_depth(png, info);
 
     png_bytep *rows = malloc(sizeof(png_bytep) * height);
 
@@ -122,7 +121,7 @@ int main(int argc, char **argv) {
     png_init_io(wpng, out);
 
     png_set_IHDR(wpng, winfo,
-                 width, height, depth,
+                 width, height, 8,
                  PNG_COLOR_TYPE_RGBA,
                  PNG_INTERLACE_NONE,
                  PNG_COMPRESSION_TYPE_BASE,
