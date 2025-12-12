@@ -31,7 +31,7 @@ When running with the AFL++ fuzzer, 10 seeds, ASAN, and UBSAN sanitizers enabled
 - **Execution Throughput:** 30.03 execs/sec  
 
 ## Part D: Write a custom mutator for LibPNG (Extra-Credit)
-When running our custom mutator, 10 seeds, ASAN, and UBSAN sanitizers enblaed, there was a big number of crashes, 672k, with 5 of them being saved. The throughput seems to be a decent rate with it being 496.45 execs/sec. We believe this is due to the overhead added by our custom mutation logic. As for the coverage, there was 6.51%/12.92% bit map coverage at the end with 18 new edges having 3.23%.  
+When running our custom mutator, 10 seeds, ASAN, and UBSAN sanitizers enabled, there was a big number of crashes, 672k, with 5 of them being saved. The throughput seems to be a decent rate with it being 496.45 execs/sec. We believe this is due to the overhead added by our custom mutation logic and sanitizer checks. As for the coverage, there was 6.51%/12.92% bit map coverage at the end with 18 new edges having 3.23%.  
 
 - **Number of crashes found:** 672k (5 saved)  
 - **Coverage:** 6.51%/12.92% bit map coverage and 18 new edges (3.23%)  
