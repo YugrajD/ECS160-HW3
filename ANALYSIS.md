@@ -1,4 +1,4 @@
-**Machine Specs**
+**Machine Specs**  
 2024 M4 Macbook Air  
 **CPU:** Apple M4 Chip (10-core CPU with 4 performance cores and 6 efficiency cores, ARM64 architecture, 16-core Neural Engine)  
 **GPU:** 10-core GPU  
