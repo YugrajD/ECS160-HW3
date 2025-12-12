@@ -38,3 +38,4 @@ When running our custom mutator, 10 seeds, ASAN, and UBSAN sanitizers enblaed, t
 - **Execution Throughput:** 496.45 execs/sec  
 
 **Mutation Logic:** 
+Our mutator works by allowing setting a 20MB buffer to handle an image, and mutates PNG chunks. It mutates the headers and data in each chunk half of the time randomly. For the header, it increases the width or height to the maximum dimension. For the data, it replaces it with a random value. The last part of our mutating code makes sure the CRC checksum is valid by fixing it so the LIBPNG functions can be tested.
