@@ -1,5 +1,8 @@
 # ECS160 HW3 - AFL++ LibPNG Fuzzing
 
+## Condition
+- If you are not using MacOS, checkout DockerReadMe.md
+
 ## Prerequisites
 
 - macOS
